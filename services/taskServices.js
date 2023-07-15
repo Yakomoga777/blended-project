@@ -1,54 +1,36 @@
-const path = require("path");
-const fs = require("fs/promises");
 const { HttpError } = require("../utils/HttpError");
-const crypto = require("crypto");
-const { writeFile } = require("fs");
-
-const taskPath = path.join(__dirname, "..", "db", "tasks.json");
+const { Task } = require("../models/Task");
 
 const getAllTasksService = async () => {
-  const result = await fs.readFile(taskPath, "utf-8");
-  return JSON.parse(result);
+  return await Task.find();
 };
 const getTasksByIdService = async (id) => {
-  const allTasks = await getAllTasksService();
-  const task = allTasks.find((task) => task.id === id);
+  const task = await Task.findById(id);
+
   if (!task) {
     throw new HttpError(404, "task not found!");
   }
   return task;
 };
 const createTaskService = async (body) => {
-  const allTasks = await getAllTasksService();
-  const newTask = {
-    id: crypto.randomUUID(),
-    ...body,
-  };
-  allTasks.push(newTask);
-  await fs.writeFile(taskPath, JSON.stringify(allTasks, null, 2));
-  return newTask;
+  return await Task.create(body);
 };
 const updateTaskService = async (taskId, body) => {
-  const allTasks = await getAllTasksService();
-  const index = allTasks.findIndex((task) => task.id === taskId);
-  if (index === -1) {
+  const updatedTask = await Task.findByIdAndUpdate(taskId, body, { new: true });
+
+  if (!updatedTask) {
     throw new HttpError(404, "task not found!");
   }
-  allTasks[index] = {
-    ...allTasks[index],
-    ...body,
-  };
-  await fs.writeFile(taskPath, JSON.stringify(allTasks, null, 2));
-  return allTasks[index];
+
+  return updatedTask;
 };
 const deleteTaskService = async (taskId) => {
-  const allTasks = await getAllTasksService();
-  const index = allTasks.findIndex((task) => task.id === taskId);
-  if (index === -1) {
+  const deteledTask = await Task.findByIdAndDelete(taskId);
+
+  if (!deteledTask) {
     throw new HttpError(404, "task not found!");
   }
-  allTasks.splice(index, 1);
-  await fs.writeFile(taskPath, JSON.stringify(allTasks, null, 2));
+
   return taskId;
 };
 
