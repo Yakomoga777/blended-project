@@ -1,8 +1,8 @@
 const { HttpError } = require("../utils/HttpError");
 const { Task } = require("../models/Task");
 
-const getAllTasksService = async () => {
-  return await Task.find();
+const getAllTasksService = async (userID) => {
+  return await Task.find({ owner: userID });
 };
 const getTasksByIdService = async (id) => {
   const task = await Task.findById(id);
@@ -12,8 +12,8 @@ const getTasksByIdService = async (id) => {
   }
   return task;
 };
-const createTaskService = async (body) => {
-  return await Task.create(body);
+const createTaskService = async (body, userId) => {
+  return await Task.create({ ...body, owner: userId });
 };
 const updateTaskService = async (taskId, body) => {
   const updatedTask = await Task.findByIdAndUpdate(taskId, body, { new: true });

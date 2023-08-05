@@ -8,6 +8,7 @@ const {
 } = require("../controllers/tasksControllers");
 
 const validateBody = require("../utils/validateBody");
+const { auth } = require("../middlewares/auth");
 
 const {
   createTaskValidationSchema,
@@ -15,6 +16,8 @@ const {
 } = require("../utils/validation/taskValidationSchemas");
 
 const router = Router();
+
+router.use(auth);
 
 router
   .route("/")

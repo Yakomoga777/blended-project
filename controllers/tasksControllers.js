@@ -9,7 +9,7 @@ const {
 const controllerWrapper = require("../utils/controllerWrapper");
 
 const getAllTasks = controllerWrapper(async (req, res, next) => {
-  const tasks = await getAllTasksService();
+  const tasks = await getAllTasksService(req.user._id);
   res.status(200).json(tasks);
 });
 
@@ -20,7 +20,7 @@ const getTasksById = controllerWrapper(async (req, res, next) => {
 });
 
 const createTask = controllerWrapper(async (req, res, next) => {
-  const newTask = await createTaskService(req.body);
+  const newTask = await createTaskService(req.body, req.user._id);
   res.status(201).json(newTask);
 });
 

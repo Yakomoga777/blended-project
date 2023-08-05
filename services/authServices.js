@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const { HttpError } = require("../utils/HttpError");
+const { genereteTokens } = require("../utils/generateTokens");
 
 const signupService = async (body) => {
   const user = await User.findOne({ email: body.email });
@@ -30,9 +31,16 @@ const loginService = async (body) => {
   if (!isPasswordCorrect) {
     throw new HttpError(401, "Password or email wrong");
   }
+  const { accessToken, refreshToken } = genereteTokens(user);
+
+  await User.findByIdAndUpdate(user._id, { refresh_token: refreshToken });
+
+  return accessToken;
 };
 
-const logoutService = () => {};
+const logoutService = async (id) => {
+  await User.findByIdAndUpdate(id, { refresh_token: null });
+};
 
 module.exports = {
   signupService,
